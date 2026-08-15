@@ -1,0 +1,38 @@
+name: Build WK Pharmacy EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        shell: powershell
+        run: |
+          Expand-Archive -Path "WK-Pharmacy-Electron-Ready.zip" -DestinationPath "." -Force
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Windows EXE
+        run: npm run electron:build
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: WK-Pharmacy-Windows
+          path: release/*
